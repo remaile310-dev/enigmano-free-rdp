@@ -2,6 +2,7 @@
 name: EnigMano Instance Deployment
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       instance_number:
