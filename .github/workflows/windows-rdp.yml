@@ -93,8 +93,18 @@ jobs:
     - name: Start ngrok Tunnel
       run: |
         Write-Host "Starting ngrok tunnel..." -ForegroundColor Green
-        Start-Process -FilePath "C:\ngrok\ngrok.exe" -ArgumentList "tcp 3389" -WindowStyle Hidden
-        Start-Sleep -Seconds 10
+        Start-Process -FilePath "C:\ngrok\ngrok.exe" -ArgumentList "tcp 3389 --log=stdout" -RedirectStandardOutput "C:\ngrok\ngrok.log" -WindowStyle Hidden
+        Start-Sleep -Seconds 20
+        Write-Host "ngrok log:" -ForegroundColor Yellow
+        Get-Content "C:\ngrok\ngrok.log" -ErrorAction SilentlyContinue
+        Write-Host "Checking ngrok API..." -ForegroundColor Yellow
+        try {
+          $ngrokApi = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -TimeoutSec 10
+          Write-Host "ngrok API accessible!" -ForegroundColor Green
+        } catch {
+          Write-Host "ngrok API not accessible yet, waiting more..." -ForegroundColor Yellow
+          Start-Sleep -Seconds 15
+        }
         
     - name: Get Connection Details
       run: |
